@@ -9,18 +9,42 @@ Content-Type: application/json
   "password": "Demo@123"
 }
 
-### Test 2 — Hit /me without a token (expect 401)
-GET {{TaskFlow.Api_HostAddress}}/api/auth/me
-
-### Test 3 — Hit /me with token (paste token below)
-GET {{TaskFlow.Api_HostAddress}}/api/auth/me
-Authorization: Bearer PASTE_YOUR_TOKEN_HERE
-
-### Test 4 — Login with wrong password (expect 401)
-POST {{TaskFlow.Api_HostAddress}}/api/auth/login
+### Create a task
+POST {{TaskFlow.Api_HostAddress}}/api/tasks
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {
-  "email": "demo@taskflow.local",
-  "password": "WrongPassword1!"
+  "title": "Finish TaskFlow Day 3",
+  "description": "Wire up the TasksController and verify CRUD works end to end.",
+  "priority": 2,
+  "dueDate": "2026-04-22T17:00:00Z"
 }
+
+### List all tasks
+GET {{TaskFlow.Api_HostAddress}}/api/tasks
+Authorization: Bearer {{token}}
+
+### Get one task (replace 1 with a real id)
+GET {{TaskFlow.Api_HostAddress}}/api/tasks/1
+Authorization: Bearer {{token}}
+
+### Update a task — mark as completed
+PUT {{TaskFlow.Api_HostAddress}}/api/tasks/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Finish TaskFlow Day 3",
+  "description": "Done!",
+  "status": 2,
+  "priority": 2,
+  "dueDate": "2026-04-22T17:00:00Z"
+}
+
+### Delete a task
+DELETE {{TaskFlow.Api_HostAddress}}/api/tasks/1
+Authorization: Bearer {{token}}
+
+### Unauthorized test (no token) — expect 401
+GET {{TaskFlow.Api_HostAddress}}/api/tasks
