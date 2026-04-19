@@ -1,6 +1,26 @@
-@TaskFlow.Api_HostAddress = http://localhost:5178
+@TaskFlow.Api_HostAddress = https://localhost:5178
 
-GET {{TaskFlow.Api_HostAddress}}/weatherforecast/
-Accept: application/json
+### Test 1 — Login with seeded user
+POST {{TaskFlow.Api_HostAddress}}/api/auth/login
+Content-Type: application/json
 
-###
+{
+  "email": "demo@taskflow.local",
+  "password": "Demo@123"
+}
+
+### Test 2 — Hit /me without a token (expect 401)
+GET {{TaskFlow.Api_HostAddress}}/api/auth/me
+
+### Test 3 — Hit /me with token (paste token below)
+GET {{TaskFlow.Api_HostAddress}}/api/auth/me
+Authorization: Bearer PASTE_YOUR_TOKEN_HERE
+
+### Test 4 — Login with wrong password (expect 401)
+POST {{TaskFlow.Api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "demo@taskflow.local",
+  "password": "WrongPassword1!"
+}
