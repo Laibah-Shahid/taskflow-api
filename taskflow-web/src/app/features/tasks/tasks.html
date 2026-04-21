@@ -1,1 +1,55 @@
-<p>tasks works!</p>
+<div class="page">
+    <header class="page-header">
+      <div>
+        <h1>My Tasks</h1>
+        <p class="subtitle">
+          {{ completedCount() }} of {{ taskCount() }} completed
+        </p>
+      </div>
+      <div class="header-actions">
+        <span class="user-email">{{ authService.email() }}</span>
+        <button type="button" class="btn-link" (click)="logout()">Logout</button>
+      </div>
+    </header>
+  
+    @if (errorMessage()) {
+      <div class="alert-error">
+        {{ errorMessage() }}
+        <button type="button" class="alert-close" (click)="errorMessage.set(null)">×</button>
+      </div>
+    }
+  
+    @if (!showForm()) {
+      <button type="button" class="btn-primary btn-new" (click)="onNewTaskClick()">
+        + New task
+      </button>
+    }
+  
+    @if (showForm()) {
+      <app-task-form
+        [task]="editingTask()"
+        [saving]="saving()"
+        (save)="onSave($event)"
+        (cancel)="onCancelForm()"
+      />
+    }
+  
+    @if (loading()) {
+      <p class="loading">Loading tasks...</p>
+    } @else if (tasks().length === 0) {
+      <div class="empty-state">
+        <p>No tasks yet. Click "New task" to create your first one.</p>
+      </div>
+    } @else {
+      <div class="task-list">
+        @for (task of tasks(); track task.id) {
+          <app-task-list-item
+            [task]="task"
+            (edit)="onEdit($event)"
+            (delete)="onDelete($event)"
+            (toggleComplete)="onToggleComplete($event)"
+          />
+        }
+      </div>
+    }
+  </div>
