@@ -1,0 +1,55 @@
+<div class="login-container">
+    <div class="login-card">
+      <h1>Sign in to TaskFlow</h1>
+  
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+        <div class="form-field">
+          <label for="email">Email</label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            autocomplete="email"
+            [class.invalid]="form.controls.email.invalid && form.controls.email.touched"
+          />
+          @if (form.controls.email.invalid && form.controls.email.touched) {
+            <small class="field-error">
+              @if (form.controls.email.hasError('required')) {
+                Email is required.
+              } @else if (form.controls.email.hasError('email')) {
+                Enter a valid email address.
+              }
+            </small>
+          }
+        </div>
+  
+        <div class="form-field">
+          <label for="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            formControlName="password"
+            autocomplete="current-password"
+            [class.invalid]="form.controls.password.invalid && form.controls.password.touched"
+          />
+          @if (form.controls.password.invalid && form.controls.password.touched) {
+            <small class="field-error">
+              @if (form.controls.password.hasError('required')) {
+                Password is required.
+              } @else if (form.controls.password.hasError('minlength')) {
+                Password must be at least 6 characters.
+              }
+            </small>
+          }
+        </div>
+  
+        @if (errorMessage()) {
+          <div class="form-error">{{ errorMessage() }}</div>
+        }
+  
+        <button type="submit" [disabled]="loading()">
+          {{ loading() ? 'Signing in...' : 'Sign in' }}
+        </button>
+      </form>
+    </div>
+  </div>
