@@ -21,7 +21,6 @@ A full-stack task management application with JWT-secured, user-scoped CRUD oper
 - [Database & Migrations](#database--migrations)
 - [Authentication](#authentication)
 - [Testing](#testing)
-- [Production Notes](#production-notes)
 - [Troubleshooting](#troubleshooting)
 
 ---
@@ -292,19 +291,6 @@ npm test
 ```
 
 Backend has no test project yet — a future `TaskFlow.Api.Tests` project is the recommended place for controller and service coverage.
-
----
-
-## Production Notes
-
-Before shipping, harden the defaults:
-
-- Generate a fresh, high-entropy `JWT_KEY` and store it in a secret manager (Azure Key Vault, AWS Secrets Manager, etc.) rather than `.env`.
-- Replace the seeded demo user in `appsettings.json` with a proper admin-onboarding flow, or remove the seeder entirely.
-- Restrict the CORS policy in [Program.cs](TaskFlow.Api/Program.cs) to the real frontend origin.
-- Terminate TLS at a reverse proxy (Traefik, Nginx, Azure Front Door, …) in front of the API.
-- Back up the `mysql-data` volume and consider external, managed MySQL instead of the bundled container.
-- Swap the Angular `apiUrl` to a build-time variable or a runtime config endpoint so the same image can deploy to multiple environments.
 
 ---
 
