@@ -1,47 +1,53 @@
-<article class="task-card" [class.completed]="task().status === TaskItemStatus.Completed">
-    <div class="task-main">
-      <input
-        type="checkbox"
-        class="task-checkbox"
-        [checked]="task().status === TaskItemStatus.Completed"
-        (change)="onToggleComplete()"
-        [attr.aria-label]="'Toggle completion for ' + task().title"
-      />
-  
-      <div class="task-body">
-        <h3 class="task-title">{{ task().title }}</h3>
-  
-        @if (task().description) {
-          <p class="task-description">{{ task().description }}</p>
+<article
+  class="task-card"
+  [class.completed]="task().status === TaskItemStatus.Completed"
+  [appHighlightOverdue]="task().dueDate"
+  [isCompleted]="task().status === TaskItemStatus.Completed"
+>
+  <div class="task-main">
+    <input
+      type="checkbox"
+      class="task-checkbox"
+      [checked]="task().status === TaskItemStatus.Completed"
+      (change)="onToggleComplete()"
+      [attr.aria-label]="'Toggle completion for ' + task().title"
+    />
+
+    <div class="task-body">
+      <h3 class="task-title">{{ task().title }}</h3>
+
+      @if (task().description) {
+        <p class="task-description">{{ task().description }}</p>
+      }
+
+      <div class="task-meta">
+        <span class="badge badge-status" [attr.data-status]="task().status">
+          {{ task().status }}
+        </span>
+        <span class="badge badge-priority" [attr.data-priority]="task().priority">
+          {{ task().priority }}
+        </span>
+        @if (task().dueDate) {
+          <span class="meta-due" [class.meta-due-warn]="task().status !== TaskItemStatus.Completed">
+            {{ task().dueDate | timeUntilDue }}
+            <span class="meta-due-exact">({{ task().dueDate | date: 'mediumDate' }})</span>
+          </span>
         }
-  
-        <div class="task-meta">
-          <span class="badge badge-status" [attr.data-status]="task().status">
-            {{ task().status }}
+        @if (task().completedAt) {
+          <span class="meta-completed">
+            Completed {{ task().completedAt | date: 'mediumDate' }}
           </span>
-          <span class="badge badge-priority" [attr.data-priority]="task().priority">
-            {{ task().priority }}
-          </span>
-          @if (task().dueDate) {
-            <span class="meta-due">
-              Due {{ task().dueDate | date: 'mediumDate' }}
-            </span>
-          }
-          @if (task().completedAt) {
-            <span class="meta-completed">
-              Completed {{ task().completedAt | date: 'mediumDate' }}
-            </span>
-          }
-        </div>
+        }
       </div>
     </div>
-  
-    <div class="task-actions">
-      <button type="button" class="btn-icon" (click)="onEdit()" aria-label="Edit task">
-        Edit
-      </button>
-      <button type="button" class="btn-icon btn-danger" (click)="onDelete()" aria-label="Delete task">
-        Delete
-      </button>
-    </div>
-  </article>
+  </div>
+
+  <div class="task-actions">
+    <button type="button" class="btn-icon" (click)="onEdit()" aria-label="Edit task">
+      Edit
+    </button>
+    <button type="button" class="btn-icon btn-danger" (click)="onDelete()" aria-label="Delete task">
+      Delete
+    </button>
+  </div>
+</article>

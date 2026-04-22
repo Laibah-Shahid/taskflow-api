@@ -9,38 +9,67 @@ import {
 } from '../../core/models/task.model';
 import { TaskListItemComponent } from './components/task-list-item/task-list-item';
 import { TaskFormComponent } from './components/task-form/task-form';
+import { ToastsComponent } from '../../shared/toasts/toasts';
+import { ToastService } from '../../shared/toasts/toast.service';
+
+type StatusFilter = 'All' | TaskItemStatus;
 
 @Component({
   selector: 'app-tasks',
   standalone: true,
-  imports: [CommonModule, TaskListItemComponent, TaskFormComponent],
+  imports: [CommonModule, TaskListItemComponent, TaskFormComponent, ToastsComponent],
   templateUrl: './tasks.html',
   styleUrl: './tasks.css'
 })
 export class TasksComponent {
   authService = inject(AuthService);
   private tasksService = inject(TasksService);
+  private toast = inject(ToastService);
 
   readonly tasks = signal<Task[]>([]);
   readonly loading = signal(false);
   readonly saving = signal(false);
-  readonly errorMessage = signal<string | null>(null);
 
   readonly showForm = signal(false);
   readonly editingTask = signal<Task | null>(null);
+
+  readonly activeFilter = signal<StatusFilter>('All');
+  readonly filters: StatusFilter[] = [
+    'All',
+    TaskItemStatus.Todo,
+    TaskItemStatus.InProgress,
+    TaskItemStatus.Completed
+  ];
+
+  readonly visibleTasks = computed(() => {
+    const all = this.tasks();
+    const filter = this.activeFilter();
+    if (filter === 'All') return all;
+    return all.filter(t => t.status === filter);
+  });
 
   readonly taskCount = computed(() => this.tasks().length);
   readonly completedCount = computed(
     () => this.tasks().filter(t => t.status === TaskItemStatus.Completed).length
   );
+  readonly visibleCount = computed(() => this.visibleTasks().length);
 
   constructor() {
     this.loadTasks();
   }
 
+  setFilter(filter: StatusFilter): void {
+    this.activeFilter.set(filter);
+  }
+
+  countForFilter(filter: StatusFilter): number {
+    const all = this.tasks();
+    if (filter === 'All') return all.length;
+    return all.filter(t => t.status === filter).length;
+  }
+
   loadTasks(): void {
     this.loading.set(true);
-    this.errorMessage.set(null);
 
     this.tasksService.getAll().subscribe({
       next: tasks => {
@@ -49,7 +78,7 @@ export class TasksComponent {
       },
       error: () => {
         this.loading.set(false);
-        this.errorMessage.set('Failed to load tasks. Please try again.');
+        this.toast.error('Failed to load tasks. Please try again.');
       }
     });
   }
@@ -81,8 +110,10 @@ export class TasksComponent {
       next: saved => {
         if (editing) {
           this.tasks.update(list => list.map(t => (t.id === saved.id ? saved : t)));
+          this.toast.success('Task updated');
         } else {
           this.tasks.update(list => [saved, ...list]);
+          this.toast.success('Task created');
         }
         this.saving.set(false);
         this.showForm.set(false);
@@ -90,9 +121,7 @@ export class TasksComponent {
       },
       error: () => {
         this.saving.set(false);
-        this.errorMessage.set(
-          editing ? 'Failed to update task.' : 'Failed to create task.'
-        );
+        this.toast.error(editing ? 'Failed to update task.' : 'Failed to create task.');
       }
     });
   }
@@ -103,9 +132,10 @@ export class TasksComponent {
     this.tasksService.delete(task.id).subscribe({
       next: () => {
         this.tasks.update(list => list.filter(t => t.id !== task.id));
+        this.toast.success('Task deleted');
       },
       error: () => {
-        this.errorMessage.set('Failed to delete task.');
+        this.toast.error('Failed to delete task.');
       }
     });
   }
@@ -129,7 +159,7 @@ export class TasksComponent {
           this.tasks.update(list => list.map(t => (t.id === saved.id ? saved : t)));
         },
         error: () => {
-          this.errorMessage.set('Failed to update task.');
+          this.toast.error('Failed to update task.');
         }
       });
   }

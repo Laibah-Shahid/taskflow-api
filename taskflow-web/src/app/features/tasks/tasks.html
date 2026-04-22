@@ -12,13 +12,6 @@
       </div>
     </header>
   
-    @if (errorMessage()) {
-      <div class="alert-error">
-        {{ errorMessage() }}
-        <button type="button" class="alert-close" (click)="errorMessage.set(null)">×</button>
-      </div>
-    }
-  
     @if (!showForm()) {
       <button type="button" class="btn-primary btn-new" (click)="onNewTaskClick()">
         + New task
@@ -34,15 +27,39 @@
       />
     }
   
+    <nav class="filter-tabs" role="tablist" aria-label="Filter tasks by status">
+      @for (f of filters; track f) {
+        <button
+          type="button"
+          role="tab"
+          [attr.aria-selected]="activeFilter() === f"
+          class="filter-tab"
+          [class.active]="activeFilter() === f"
+          (click)="setFilter(f)"
+        >
+          {{ f }}
+          <span class="filter-count">{{ countForFilter(f) }}</span>
+        </button>
+      }
+    </nav>
+  
     @if (loading()) {
-      <p class="loading">Loading tasks...</p>
+      <div class="skeleton-list">
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+      </div>
     } @else if (tasks().length === 0) {
       <div class="empty-state">
         <p>No tasks yet. Click "New task" to create your first one.</p>
       </div>
+    } @else if (visibleTasks().length === 0) {
+      <div class="empty-state">
+        <p>No {{ activeFilter() }} tasks. Switch filters to see others.</p>
+      </div>
     } @else {
       <div class="task-list">
-        @for (task of tasks(); track task.id) {
+        @for (task of visibleTasks(); track task.id) {
           <app-task-list-item
             [task]="task"
             (edit)="onEdit($event)"
@@ -53,3 +70,5 @@
       </div>
     }
   </div>
+  
+  <app-toasts />
